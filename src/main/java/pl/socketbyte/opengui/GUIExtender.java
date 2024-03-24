@@ -147,19 +147,16 @@ public abstract class GUIExtender implements Listener, WindowResponse {
                     !event.getClickedInventory().equals(getBukkitInventory())) {
                 event.setCancelled(true);
                 return;
-            }
-            else if (!event.isShiftClick() &&
+            } else if (!event.isShiftClick() &&
                     event.getClickedInventory().equals(getBukkitInventory())
                     && (event.getCurrentItem() == null || event.getCurrentItem().getType().equals(Material.AIR))) {
                 event.setCancelled(true);
                 return;
-            }
-            else if (!event.isShiftClick() &&
+            } else if (!event.isShiftClick() &&
                     event.getClickedInventory().equals(getBukkitInventory())) {
                 checkElements(event);
                 return;
-            }
-            else if (event.isShiftClick() &&
+            } else if (event.isShiftClick() &&
                     event.getClickedInventory().equals(getBukkitInventory())) {
                 checkElements(event);
                 return;
@@ -275,11 +272,10 @@ public abstract class GUIExtender implements Listener, WindowResponse {
             for (FinalItemJob finalItemJob : jobs) {
                 if (finalItemJob.getSlot() == -1) {
                     addExtenderItem(finalItemJob.getGuiExtenderItem(),
-                                    player);
-                }
-                else setExtenderItem(finalItemJob.getSlot(),
-                                    finalItemJob.getGuiExtenderItem(),
-                                    player);
+                            player);
+                } else setExtenderItem(finalItemJob.getSlot(),
+                        finalItemJob.getGuiExtenderItem(),
+                        player);
             }
             jobs.clear();
         }
@@ -310,7 +306,7 @@ public abstract class GUIExtender implements Listener, WindowResponse {
         for (int slot : slots)
             addEmptyElementResponse(slot);
 
-        getBukkitInventory().getViewers().forEach(viewer -> ((Player)viewer).updateInventory());
+        getBukkitInventory().getViewers().forEach(viewer -> ((Player) viewer).updateInventory());
     }
 
     private void setExtenderItem(int slot, GUIExtenderItem guiExtenderItem, Player player) {
@@ -326,23 +322,24 @@ public abstract class GUIExtender implements Listener, WindowResponse {
     }
 
     private void checkElements(InventoryClickEvent event) {
-        for (GUIElement element : elements.values()) {
-            int slot = element.getSlot();
+        int eventSlot = event.getSlot();
 
-            if (slot != event.getSlot())
-                continue;
-            if (!event.getClickedInventory().equals(getBukkitInventory()))
-                continue;
-            if (!event.getView().getTopInventory().equals(getBukkitInventory()))
-                continue;
+        if (!event.getClickedInventory().equals(getBukkitInventory()))
+            return;
+        if (!event.getView().getTopInventory().equals(getBukkitInventory()))
+            return;
 
-            event.setCancelled(!element.isPullable());
-            if (element.getElementResponse() != null)
-                element.getElementResponse().onClick(event);
-            else if (element.getGuiExtenderItem() != null)
-                element.getGuiExtenderItem().onClick(event);
+        GUIElement element = elements.get(eventSlot);
+
+        if (element == null) {
+            return;
         }
 
+        event.setCancelled(!element.isPullable());
+        if (element.getElementResponse() != null)
+            element.getElementResponse().onClick(event);
+        else if (element.getGuiExtenderItem() != null)
+            element.getGuiExtenderItem().onClick(event);
     }
 
     public int getId() {
