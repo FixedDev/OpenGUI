@@ -95,76 +95,71 @@ public abstract class GUIExtender implements Listener, WindowResponse {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView() == null
-                || event.getView().getTopInventory() == null
-                || event.getView().getBottomInventory() == null
-                || event.getClickedInventory() == null)
+        if (event.getView() == null) return;
+        if (event.getView().getTopInventory() == null) return;
+        if (event.getView().getBottomInventory() == null) return;
+        if (event.getClickedInventory() == null) {
             return;
-
-        if (guiSettings.isCanEnterItems()) {
-            if (!event.isShiftClick()) {
-                if (event.getView().getTopInventory().equals(getBukkitInventory())
-                        && event.getClickedInventory().equals(getBukkitInventory())
-                        && event.getCursor() != null
-                        && canEnter(event.getCursor())) {
-                    if (guiSettings.getEnteredItemResponse() != null)
-                        guiSettings.getEnteredItemResponse().event(event);
-                    event.setCancelled(false);
-                    return;
-                } else if (event.getView().getTopInventory().equals(getBukkitInventory())
-                        && event.getClickedInventory().equals(getBukkitInventory())
-                        && event.getCursor() != null
-                        && !canEnter(event.getCursor())) {
-                    if (guiSettings.getNotEnterableItemResponse() != null)
-                        guiSettings.getNotEnterableItemResponse().event(event);
-                    event.setCancelled(true);
-                    return;
-                }
-            } else {
-                if (event.getView().getTopInventory().equals(getBukkitInventory())
-                        && !event.getClickedInventory().equals(getBukkitInventory())
-                        && event.getCurrentItem() != null
-                        && canEnter(event.getCurrentItem())) {
-                    if (guiSettings.getEnteredItemResponse() != null)
-                        guiSettings.getEnteredItemResponse().event(event);
-                    event.setCancelled(false);
-                    return;
-                } else if (event.getView().getTopInventory().equals(getBukkitInventory())
-                        && !event.getClickedInventory().equals(getBukkitInventory())
-                        && event.getCurrentItem() != null
-                        && !canEnter(event.getCurrentItem())) {
-                    if (guiSettings.getNotEnterableItemResponse() != null)
-                        guiSettings.getNotEnterableItemResponse().event(event);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
         }
 
-        if (event.getView().getTopInventory().equals(getBukkitInventory())
-                && !guiSettings.isCanEnterItems()) {
-            if (event.isShiftClick() &&
-                    !event.getClickedInventory().equals(getBukkitInventory())) {
+        if(!event.getView().getTopInventory().equals(this.getBukkitInventory())) {
+            return;
+        }
+
+        if (this.guiSettings.isCanEnterItems() ) {
+            if (!event.isShiftClick() && event.getClickedInventory().equals(this.getBukkitInventory()) && event.getCursor() != null) {
+                if (this.canEnter(event.getCursor())) {
+                    if (this.guiSettings.getEnteredItemResponse() != null) {
+                        this.guiSettings.getEnteredItemResponse().event(event);
+                    }
+                    event.setCancelled(false);
+                } else {
+                    if (this.guiSettings.getNotEnterableItemResponse() != null) {
+                        this.guiSettings.getNotEnterableItemResponse().event(event);
+                    }
+                    event.setCancelled(true);
+                }
+
+                return;
+            } else {
+                if (!event.getClickedInventory().equals(this.getBukkitInventory()) && event.getCurrentItem() != null) {
+                    if (this.canEnter(event.getCurrentItem())) {
+                        if (this.guiSettings.getEnteredItemResponse() != null) {
+                            this.guiSettings.getEnteredItemResponse().event(event);
+                        }
+                        event.setCancelled(false);
+                    } else {
+                        if (this.guiSettings.getNotEnterableItemResponse() != null) {
+                            this.guiSettings.getNotEnterableItemResponse().event(event);
+                        }
+                        event.setCancelled(true);
+                    }
+                    return;
+                }
+            }
+        } else {
+            if (event.getClickedInventory().equals(this.getBukkitInventory())) {
+                if (event.isShiftClick()) {
+                    event.setCancelled(true);
+                } else {
+                    if (event.getCurrentItem() == null || event.getCurrentItem().getType().equals(Material.AIR)) {
+                        event.setCancelled(true);
+                        return;
+                    }
+
+                    this.checkElements(event);
+                }
+                return;
+            } else if (event.isShiftClick()) {
                 event.setCancelled(true);
-                return;
-            } else if (!event.isShiftClick() &&
-                    event.getClickedInventory().equals(getBukkitInventory())
-                    && (event.getCurrentItem() == null || event.getCurrentItem().getType().equals(Material.AIR))) {
-                event.setCancelled(true);
-                return;
-            } else if (!event.isShiftClick() &&
-                    event.getClickedInventory().equals(getBukkitInventory())) {
-                checkElements(event);
-                return;
-            } else if (event.isShiftClick() &&
-                    event.getClickedInventory().equals(getBukkitInventory())) {
-                checkElements(event);
                 return;
             }
+
             event.setCancelled(false);
             return;
         }
-        checkElements(event);
+
+        this.checkElements(event);
     }
 
     private boolean canEnter(ItemStack itemStack) {
